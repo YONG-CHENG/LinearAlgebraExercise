@@ -3,16 +3,14 @@ using UnityEditor;
 
 public class Exercise3 : MonoBehaviour
 {
-    private Vector3 m_PointA = new Vector3(0, 0, 0);
-    private Vector3 m_PointB = new Vector3(200, 0, 0);
-    [SerializeField]private Vector3 m_PointC = new Vector3(200, 200, 0);
-
-    private Vector3 m_OriginPos = new Vector3(Screen.width / 2, Screen.height / 2, 0);
+    [SerializeField]private Vector3 m_PointA = new Vector3(200, 200, 0);
+    [SerializeField]private Vector3 m_OriginPos = new Vector3(Screen.width / 2, Screen.height / 2, 0);
     private Vector3 m_MousePos;
     private int m_CurDegree = 0;
-    private float m_MouseRadians = 0f;
-    private float m_PointCRadians = 0f;
+    private float m_MouseRadians = 0f;//滑鼠與原點的夾角
+    private float m_PointARadians = 0f;//點A與原點的夾角
     private float m_MoveRadians = 0f;//這次要移動的距離
+    private float m_LineLength = 0;
     private Matrix4x4 m_RotationMatrix = new Matrix4x4();
     private Matrix4x4 m_CartesianMatrix = new Matrix4x4();//直角坐標系
     private const float ONE_DEGREE = Mathf.PI / 180;
@@ -29,29 +27,29 @@ public class Exercise3 : MonoBehaviour
         {
             m_MousePos = GetCartesianMousePos();
             m_MouseRadians = Mathf.Atan2(m_MousePos.y, m_MousePos.x);
-            m_PointCRadians = Mathf.Atan2(m_PointC.y, m_PointC.x);
+            m_PointARadians = Mathf.Atan2(m_PointA.y, m_PointA.x);
 
             m_CurDegree = 0;
-            m_MoveRadians = Mathf.Abs(m_MouseRadians - m_PointCRadians);
+            m_MoveRadians = Mathf.Abs(m_MouseRadians - m_PointARadians);
             if (m_MoveRadians > Mathf.PI)
                 m_MoveRadians = 2 * Mathf.PI - m_MoveRadians;
         }
         if (m_CurDegree * ONE_DEGREE >= m_MoveRadians)
             return;
 
-        if (m_MouseRadians < m_PointCRadians)
+        if (m_MouseRadians < m_PointARadians)
         {
-            if (Mathf.Abs(m_MouseRadians - m_PointCRadians) < Mathf.PI)
-                RotateClockwise((-m_PointCRadians) + m_CurDegree * ONE_DEGREE);
+            if (Mathf.Abs(m_MouseRadians - m_PointARadians) < Mathf.PI)
+                RotateClockwise((-m_PointARadians) + m_CurDegree * ONE_DEGREE);
             else
-                RotateCounterclockwise(m_PointCRadians + m_CurDegree * ONE_DEGREE);
+                RotateCounterclockwise(m_PointARadians + m_CurDegree * ONE_DEGREE);
         }
-        else if (m_MouseRadians > m_PointCRadians) 
+        else if (m_MouseRadians > m_PointARadians) 
         {
-            if (Mathf.Abs(m_MouseRadians - m_PointCRadians) < Mathf.PI)
-                RotateCounterclockwise(m_PointCRadians + m_CurDegree * ONE_DEGREE);
+            if (Mathf.Abs(m_MouseRadians - m_PointARadians) < Mathf.PI)
+                RotateCounterclockwise(m_PointARadians + m_CurDegree * ONE_DEGREE);
             else
-                RotateClockwise((-m_PointCRadians) + m_CurDegree * ONE_DEGREE);
+                RotateClockwise((-m_PointARadians) + m_CurDegree * ONE_DEGREE);
         }
 
         m_CurDegree++;
@@ -70,18 +68,20 @@ public class Exercise3 : MonoBehaviour
         //取得直角坐標系上的滑鼠座標
         Vector3 mousePos = Input.mousePosition;
         mousePos.x = mousePos.x - m_OriginPos.x;
-        mousePos.y = mousePos.y - m_OriginPos.y;
+        mousePos.y = mousePos.y - (Screen.height- m_OriginPos.y);
         return mousePos;
     }
     private void DrawBaseLine() 
     {
+        InitCartesianMatrix();
+        m_LineLength = m_PointA.magnitude;
         //以直角坐標系為基準畫出線段AB,線段AC
         Handles.matrix = m_CartesianMatrix;
         Handles.color = Color.gray;
-        Handles.DrawLine(m_PointA, m_PointB);
+        Handles.DrawLine(Vector3.zero, new Vector3(m_LineLength, 0, 0));
 
         Handles.color = Color.white;
-        Handles.DrawLine(m_PointA, m_PointC);
+        Handles.DrawLine(Vector3.zero, m_PointA);
     }
     private void RotateCounterclockwise(float _fRadians)
     {
@@ -101,7 +101,7 @@ public class Exercise3 : MonoBehaviour
 
         Handles.matrix = m_CartesianMatrix * m_RotationMatrix;//先旋轉完,再轉換成直角坐標系
         Handles.color = Color.red;
-        Handles.DrawLine(m_PointA, m_PointB);
+        Handles.DrawLine(Vector3.zero, new Vector3(m_LineLength, 0, 0));
     }
     private void RotateClockwise(float _fRadians)
     {
@@ -121,6 +121,6 @@ public class Exercise3 : MonoBehaviour
 
         Handles.matrix = m_CartesianMatrix * m_RotationMatrix;
         Handles.color = Color.green;
-        Handles.DrawLine(m_PointA, m_PointB);
+        Handles.DrawLine(Vector3.zero, new Vector3(m_LineLength, 0, 0));
     }
 }
