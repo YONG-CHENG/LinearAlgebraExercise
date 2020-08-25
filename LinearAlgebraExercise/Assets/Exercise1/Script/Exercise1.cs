@@ -16,7 +16,7 @@ public class Exercise1 : MonoBehaviour
         m_MousePos = Input.mousePosition;
         m_MousePos.y = Screen.height - m_MousePos.y;
 
-        if (IsPointInTrangle(m_MousePos, m_Vertex1, m_Vertex2, m_Vertex3))
+        if (IsPointInTrangle2(m_MousePos, m_Vertex1, m_Vertex2, m_Vertex3))
         {
             Handles.color = Color.green;
         }
@@ -58,5 +58,31 @@ public class Exercise1 : MonoBehaviour
             return true;
 
         return false;
+    }
+    private bool IsPointInTrangle2(Vector3 _P, Vector3 _A, Vector3 _B, Vector3 _C)
+    {
+        Vector3 _newB = _B - _A;
+        Vector3 _newC = _C - _B;
+        Vector3 _newA = _A - _C;
+
+        Vector3 _newP;
+
+        _newP = _P - _A;
+        if (Det(_newP, _newB) > 0)
+            return false;
+        _newP = _P - _B;
+        if (Det(_newP, _newC) > 0)
+            return false;
+        _newP = _P - _C;
+        if (Det(_newP, _newA) > 0)
+            return false;
+        return true;
+
+
+    }
+    private float Det(Vector3 _left, Vector3 _right)
+    {
+        float det = (_right.x * _left.y) - (_right.y * _left.x);
+        return det;
     }
 }
