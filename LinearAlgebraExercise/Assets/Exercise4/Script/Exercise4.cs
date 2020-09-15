@@ -31,11 +31,11 @@ public class Exercise4 : MonoBehaviour
             m_MouseDegree = Mathf.Atan2(m_CartesianMousePos.y, m_CartesianMousePos.x)/ ONE_DEGREE;
             if (m_MouseDegree < 0)
                 m_MouseDegree += 360;
+            IsInRage();
         }
 
         //偵測角度&距離
-        if (Mathf.Abs(m_MouseDegree - m_CurDegree) < m_DegreeRange * 0.5f &&
-            GetMouseVectorLength() < m_LineLength)
+        if (IsInRage() && GetMouseVectorLength() < m_LineLength)
         {
             //停止運轉
         }
@@ -49,6 +49,15 @@ public class Exercise4 : MonoBehaviour
         DrawBaseLine();//畫出偵測範圍
         GUI.Label(new Rect(m_DrawMousePos.x - 5.5f, m_DrawMousePos.y - 11, 200, 50), "⊗");//畫出目標點
         GUI.Label(new Rect(10, 10, 200, 50), GetCartesianMousePos().x + ", " + GetCartesianMousePos().y);//顯示滑鼠直角坐標
+    }
+    private bool IsInRage()
+    {
+        //求夾角
+        double x = m_LineLength * Math.Cos(m_CurDegree* ONE_DEGREE);
+        double y = m_LineLength * Math.Sin(m_CurDegree * ONE_DEGREE);
+        double CosTheta = (m_CartesianMousePos.x * x + m_CartesianMousePos.y * y) / (m_LineLength * GetMouseVectorLength());
+        float Degree = (float)Math.Acos(CosTheta)/ ONE_DEGREE;
+        return (Degree < m_DegreeRange * 0.5f);
     }
     private Vector3 GetCartesianMousePos()
     {
